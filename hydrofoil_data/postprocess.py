@@ -319,12 +319,6 @@ def plot_confidence_map(ds: xr.Dataset) -> None:
     print(f"Saved {fname}")
 
 
-def _mark_nonconverged(ax: plt.Axes, alphas: np.ndarray) -> None:
-    """Shade a thin red band at each XFoil-AoA that failed to converge."""
-    for a in alphas:
-        ax.axvspan(a - 0.1, a + 0.1, color="red", alpha=0.15, lw=0)
-
-
 def plot_foil_re_comparison(
     ds: xr.Dataset, foil_id: str, re: float, sigma: float,
 ) -> None:
@@ -337,10 +331,6 @@ def plot_foil_re_comparison(
 
     xf = sub.sel(fidelity="xfoil") if has_xfoil else None
     nf = sub.sel(fidelity="neuralfoil") if has_nf else None
-    gaps = (
-        alpha[xf["converged"].values != 1.0] if has_xfoil
-        else np.array([])
-    )
 
     fig, axes = plt.subplots(3, 2, figsize=(11, 12))
     ax_cl, ax_cd, ax_cm, ax_cpmin, ax_conf, ax_bkt = axes.flatten()
@@ -361,12 +351,6 @@ def plot_foil_re_comparison(
                 alpha, nf[var].values, color="tab:blue", lw=1.5,
                 label="NeuralFoil",
             )
-        _mark_nonconverged(ax, gaps)
-        if len(gaps):
-            ax.plot(
-                [], [], color="red", alpha=0.4, lw=6,
-                label="XFoil non-converged",
-            )
         ax.set_xlabel(r"$\alpha$ (deg)")
         ax.set_ylabel(ylabel)
         ax.grid(True, linewidth=0.4)
@@ -385,25 +369,23 @@ def plot_foil_re_comparison(
             alpha, -nf["Cp_min"].values, color="tab:blue", lw=1.5,
             label="NeuralFoil",
         )
-    _mark_nonconverged(ax_cpmin, gaps)
-    if len(gaps):
-        ax_cpmin.plot(
-            [], [], color="red", alpha=0.4, lw=6,
-            label="XFoil non-converged",
-        )
     ax_cpmin.set_xlabel(r"$\alpha$ (deg)")
     ax_cpmin.set_ylabel("$-C_{p,\\min}$")
     ax_cpmin.grid(True, linewidth=0.4)
     ax_cpmin.axhline(0, color="k", linewidth=0.4, linestyle="--")
     ax_cpmin.legend(fontsize=8)
 
-    # NeuralFoil-only quantity: analysis confidence (no XFoil equivalent)
+    # NeuralFoil analysis confidence, with XFoil convergence (1/0) overlaid
     if has_nf:
         ax_conf.plot(
             alpha, nf["analysis_confidence"].values, color="tab:blue",
-            lw=1.5, label="NeuralFoil",
+            lw=1.5, label="NeuralFoil confidence",
         )
-    _mark_nonconverged(ax_conf, gaps)
+    if has_xfoil:
+        ax_conf.plot(
+            alpha, xf["converged"].values, "x", color="black",
+            markersize=6, label="XFoil converged",
+        )
     ax_conf.set_ylim(0, 1)
     ax_conf.set_xlabel(r"$\alpha$ (deg)")
     ax_conf.set_ylabel("Analysis confidence")

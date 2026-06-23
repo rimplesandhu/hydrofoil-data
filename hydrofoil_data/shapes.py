@@ -86,13 +86,13 @@ def save_shapes(
         n = shapes[foil_id].shape[0]
         coords[i, :n, :] = shapes[foil_id]
 
-    # Stack every foil's x/c, y/c columns side by side in a single txt file
+    # Write one foil-name header followed by its x/c, y/c rows per block
     txt_path = f"{out_path}_shapes.txt"
-    columns = np.column_stack(
-        [coords[i] for i in range(len(foil_ids))]
-    )
-    header = " ".join(f"x/c_{f} y/c_{f}" for f in foil_ids)
-    np.savetxt(txt_path, columns, fmt="%.6f", header=header)
+    with open(txt_path, "w") as f:
+        for foil_id in foil_ids:
+            f.write(f"# {foil_id}\n")
+            np.savetxt(f, shapes[foil_id], fmt="%.6f")
+            f.write("\n")
     print(f"Saved {txt_path}")
 
     # Combine every foil's coordinates into one nc file along foil_id

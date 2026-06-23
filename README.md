@@ -56,3 +56,7 @@ Output dataset and figures are written under `output/`.
 
 Needs a local XFoil binary at `bin/xfoil` (not tracked in this repo —
 build it from `xfoil_src/` or your own XFoil install).
+
+## Author
+
+Rimple Sandhu
