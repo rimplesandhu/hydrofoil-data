@@ -27,16 +27,27 @@ plots per airfoil/Re.
 - `hydrofoil_data/get_nf_airfoils.py` — lists airfoils in the
   AeroSandbox/NeuralFoil training database.
 - `hydrofoil_data/cli.py` — `hfdata` command-line entry point
-  (`run`, `list-airfoils`).
-- `configs/sweep_config.yaml` — airfoils, alpha/Re ranges, solver
-  settings, and operating conditions (chord, depth, temperature) for a
-  sweep.
+  (`run`, `get-foils`, `list-foils`).
+- `configs/sweep_config.yaml` — airfoils, repanelling, alpha/Re ranges,
+  solver settings, and operating conditions (chord, depth, temperature)
+  for a sweep.
+
+## Repanelling
+
+By default each airfoil is repanelled to `n_points_per_side` points per
+side (~2x total, default 100/side = 199 points) before being passed to
+the solvers. Set
+`repanel.enabled: false` in the config to use the raw UIUC coordinates
+unchanged instead — both XFoil and NeuralFoil accept arbitrary coordinate
+arrays, so this is safe, but irregular point spacing in the raw tables
+may affect solver accuracy/convergence.
 
 ## Usage
 
 ```bash
 hfdata run --config configs/sweep_config.yaml
-hfdata list-airfoils
+hfdata get-foils --config configs/sweep_config.yaml
+hfdata list-foils
 ```
 
 Output dataset and figures are written under `output/`.

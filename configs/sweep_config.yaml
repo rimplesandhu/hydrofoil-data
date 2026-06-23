@@ -5,6 +5,10 @@ shapes:
   - "naca16018"  # low cavitation inception: Re 5e5-5e6, marine/propeller
   - "naca642415" # full-scale tidal: Re 5e5-6e6, passive-pitch reference
 
+repanel:
+  enabled: true        # false uses the raw UIUC coordinates, unrepanelled
+  n_points_per_side: 100
+
 sweep:
   alpha_start: -10.0        # XFoil's validated convergence range
   alpha_end: 20.0

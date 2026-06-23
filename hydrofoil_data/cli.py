@@ -14,8 +14,21 @@ from hydrofoil_data.postprocess import (
     plot_foil_re_comparison,
     summarize_convergence,
 )
-from hydrofoil_data.shapes import load_all_shapes, plot_shapes
+from hydrofoil_data.shapes import load_all_shapes, plot_shapes, save_shapes
 from hydrofoil_data.sweep import run_full_sweep
+
+
+def get_foils(config_path: str) -> None:
+    """Load, repanel, save and plot the foils listed in the config."""
+    with open(config_path) as f:
+        config = yaml.safe_load(f)
+
+    shapes_out_path = os.path.splitext(config["output"]["path"])[0]
+    shapes = load_all_shapes(config)
+    save_shapes(shapes, out_path=shapes_out_path)
+    plot_shapes(
+        shapes, save_path="output/figures/airfoil_shapes.png",
+    )
 
 
 def run(config_path: str) -> None:
@@ -36,9 +49,12 @@ def run(config_path: str) -> None:
     summary.to_csv("output/data/convergence_summary.csv")
     print(summary)
 
-    # Plot the airfoil shapes being swept
+    # Save and plot the foil shapes being swept
+    shapes_out_path = os.path.splitext(out_path)[0]
+    shapes = load_all_shapes(config)
+    save_shapes(shapes, out_path=shapes_out_path)
     plot_shapes(
-        load_all_shapes(config),
+        shapes,
         save_path="output/figures/airfoil_shapes.png",
     )
 
@@ -65,14 +81,24 @@ def main() -> None:
     run_parser.add_argument("--config", default="configs/sweep_config.yaml")
 
     subparsers.add_parser(
-        "list-airfoils", help="List the AeroSandbox airfoil database"
+        "list-foils", help="List the AeroSandbox airfoil database"
+    )
+
+    get_foils_parser = subparsers.add_parser(
+        "get-foils",
+        help="Load, repanel, save and plot the configured foils",
+    )
+    get_foils_parser.add_argument(
+        "--config", default="configs/sweep_config.yaml"
     )
 
     args = parser.parse_args()
     if args.command == "run":
         run(args.config)
-    elif args.command == "list-airfoils":
+    elif args.command == "list-foils":
         list_airfoils()
+    elif args.command == "get-foils":
+        get_foils(args.config)
 
 
 if __name__ == "__main__":

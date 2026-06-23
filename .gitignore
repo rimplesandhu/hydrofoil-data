@@ -6,4 +6,4 @@ __pycache__/
 xfoil_src/
 bin/xfoil
 *.csv
-output/data/*.nc
+output/
