@@ -1,0 +1,31 @@
+shapes:
+  - "sg6043"     # low Re performance: Re 1e5-1e6, best cavitation margin
+  - "naca633218" # high Cl/Cd: Re 5e5-3e6, highest Cl/Cd
+  - "naca4415"   # robust deployment: Re 3e5-2e6, DOE RM1 reference
+  - "naca16018"  # low cavitation inception: Re 5e5-5e6, marine/propeller
+  - "naca642415" # full-scale tidal: Re 5e5-6e6, passive-pitch reference
+
+sweep:
+  alpha_start: -10.0        # XFoil's validated convergence range
+  alpha_end: 20.0
+  alpha_step: 0.5           # finer resolution to resolve design AoA 2°–12°
+  reynolds: [1000000, 3000000, 5000000]
+
+solvers:
+  neuralfoil:
+    enabled: true
+    n_crit: 9.0
+    model_size: "xxxlarge"
+  xfoil:
+    enabled: true
+    n_crit: 9.0
+    max_iter: 200
+
+operating:
+  chord: 0.5          # m — mid-span chord, full-scale tidal (~15 m rotor)
+  depth: 30.0         # m — typical tidal site (Pentland Firth/MeyGen ~35 m)
+  temperature: 10.0   # °C — cold coastal/tidal; ν=1.31e-6 m²/s, Re −23% vs 20 °C
+
+output:
+  path: "output/data/hydrofoil_hkt5.nc"
+  save_cp: true

@@ -1,0 +1,9 @@
+.venv/
+CLAUDE.md
+__pycache__/
+*.pyc
+*.egg-info/
+xfoil_src/
+bin/xfoil
+*.csv
+output/data/*.nc
