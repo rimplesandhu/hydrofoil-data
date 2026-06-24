@@ -97,6 +97,13 @@ def summarize_convergence(ds: xr.Dataset) -> pd.DataFrame:
     return df
 
 
+def save_full_results(ds: xr.Dataset, out_path: str) -> None:
+    """Write every (foil_id, alpha, Re, fidelity) row and variable, no summary."""
+    df = ds.to_dataframe().reset_index()
+    df.to_csv(out_path, index=False)
+    print(f"Saved {out_path}")
+
+
 def plot_polars(
     ds: xr.Dataset,
     foil_id: str,
@@ -332,7 +339,7 @@ def plot_foil_re_comparison(
     xf = sub.sel(fidelity="xfoil") if has_xfoil else None
     nf = sub.sel(fidelity="neuralfoil") if has_nf else None
 
-    fig, axes = plt.subplots(3, 2, figsize=(11, 12))
+    fig, axes = plt.subplots(3, 2, figsize=(8, 9))
     ax_cl, ax_cd, ax_cm, ax_cpmin, ax_conf, ax_bkt = axes.flatten()
 
     # Quantities shared by both solvers: XFoil points, NeuralFoil line

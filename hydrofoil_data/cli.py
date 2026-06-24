@@ -12,9 +12,15 @@ from hydrofoil_data.postprocess import (
     compute_cavitation_proxy,
     compute_cavitation_sigma,
     plot_foil_re_comparison,
+    save_full_results,
     summarize_convergence,
 )
-from hydrofoil_data.shapes import load_all_shapes, plot_shapes, save_shapes
+from hydrofoil_data.shapes import (
+    load_all_shapes,
+    load_raw_shapes,
+    plot_shapes,
+    save_shapes,
+)
 from hydrofoil_data.sweep import run_full_sweep
 
 
@@ -29,6 +35,10 @@ def get_foils(config_path: str) -> None:
     plot_shapes(
         shapes, save_path="output/figures/airfoil_shapes.png",
     )
+
+    # Also save the un-repaneled coordinates for reference
+    raw_shapes = load_raw_shapes(config)
+    save_shapes(raw_shapes, out_path=f"{shapes_out_path}_raw")
 
 
 def run(config_path: str) -> None:
@@ -48,6 +58,7 @@ def run(config_path: str) -> None:
     summary = summarize_convergence(ds)
     summary.to_csv("output/data/convergence_summary.csv")
     print(summary)
+    save_full_results(ds, "output/data/full_results.csv")
 
     # Save and plot the foil shapes being swept
     shapes_out_path = os.path.splitext(out_path)[0]
@@ -57,6 +68,10 @@ def run(config_path: str) -> None:
         shapes,
         save_path="output/figures/airfoil_shapes.png",
     )
+
+    # Also save the un-repaneled coordinates for reference
+    raw_shapes = load_raw_shapes(config)
+    save_shapes(raw_shapes, out_path=f"{shapes_out_path}_raw")
 
     # One comparison figure per (foil, Re) pair
     op = config["operating"]
