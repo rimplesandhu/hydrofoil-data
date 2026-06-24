@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -31,17 +32,7 @@ def compute_cavitation_sigma(
 
 
 def compute_cavitation_proxy(ds: xr.Dataset) -> xr.Dataset:
-    """Add cavitation inception proxy variable sigma_inception = -Cp_min.
-
-    Under the fully-wetted assumption, cavitation inception occurs when
-    the local pressure equals vapour pressure, giving sigma_i = -Cp_min.
-
-    Args:
-        ds: xarray Dataset containing the Cp_min variable.
-
-    Returns:
-        Dataset with new data variable sigma_inception added.
-    """
+    """Add sigma_inception = -Cp_min, the fully-wetted cavitation proxy."""
     ds = ds.copy()
     ds["sigma_inception"] = -ds["Cp_min"]
     ds["sigma_inception"].attrs["long_name"] = (
@@ -52,15 +43,7 @@ def compute_cavitation_proxy(ds: xr.Dataset) -> xr.Dataset:
 
 
 def summarize_convergence(ds: xr.Dataset) -> pd.DataFrame:
-    """Summarise XFoil convergence fraction and NeuralFoil confidence per foil.
-
-    Args:
-        ds: xarray Dataset with converged and analysis_confidence variables.
-
-    Returns:
-        DataFrame indexed by (foil_id, Re) with columns:
-        xfoil_converge_fraction, neuralfoil_mean_confidence.
-    """
+    """Summarise XFoil convergence fraction and NeuralFoil mean confidence."""
     records = []
 
     for foil_id in ds["foil_id"].values:
@@ -98,7 +81,7 @@ def summarize_convergence(ds: xr.Dataset) -> pd.DataFrame:
 
 
 def save_full_results(ds: xr.Dataset, out_path: str) -> None:
-    """Write every (foil_id, alpha, Re, fidelity) row and variable, no summary."""
+    """Write every (foil_id, alpha, Re, fidelity) row, no summarising."""
     df = ds.to_dataframe().reset_index()
     df.to_csv(out_path, index=False)
     print(f"Saved {out_path}")

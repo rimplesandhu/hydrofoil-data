@@ -1,11 +1,4 @@
-"""XFoil solver wrapper driving the locally-compiled bin/xfoil binary.
-
-Note:
-    Non-convergence near stall is expected behaviour in XFoil.  The
-    ``converged`` flag (stored as float 0.0/1.0 for NetCDF4 compatibility)
-    must be propagated to all downstream data consumers; do not silently
-    drop unconverged points.
-"""
+"""XFoil solver wrapper driving the locally-compiled bin/xfoil binary."""
 
 from __future__ import annotations
 
@@ -33,25 +26,10 @@ def run_xfoil(
     n_crit: float = 9.0,
     max_iter: int = 100,
 ) -> pd.DataFrame:
-    """Run XFoil for a single airfoil across alphas at one Reynolds number.
-
-    Drives the compiled bin/xfoil binary via subprocess and a batch script,
-    using a two-leg AoA sweep outward from 0 deg (XFoil's ASEQ command
-    auto-halts after 4 consecutive non-converged points, so sweeping
-    outward from the well-behaved region protects it from an early abort).
-
-    Args:
-        coords: Surface coordinates, shape (n_points, 2), CCW from TE.
-        alphas: List of angles of attack in degrees.
-        re: Reynolds number.
-        n_crit: Transition criterion (e-to-the-n method).
-        max_iter: Maximum XFoil Newton iterations per alpha.
-
-    Returns:
-        DataFrame with columns:
-        [alpha, Re, Cl, Cd, Cm, Cp_min, converged]
-        Non-converged rows have NaN for Cl/Cd/Cm/Cp_min and converged=0.0.
-    """
+    """Run XFoil for one airfoil across alphas at one Reynolds number."""
+    # Sweep outward from 0 deg in two legs: ASEQ auto-halts after 4
+    # consecutive non-converged points, so starting from the well-behaved
+    # region protects the sweep from an early abort
     alphas_sorted = sorted(float(a) for a in alphas)
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -162,6 +140,8 @@ def _to_result(
                 "converged": 1.0,
             })
         else:
+            # Non-convergence near stall is expected; keep the row (NaN
+            # coefficients, converged=0.0) instead of dropping it
             records.append({
                 "alpha": float(alpha), "Re": float(re),
                 "Cl": float("nan"), "Cd": float("nan"),

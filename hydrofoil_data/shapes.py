@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
-import matplotlib.pyplot as plt
+
+if TYPE_CHECKING:
+    import aerosandbox as asb
 
 FIXES_DIR = os.path.join(os.path.dirname(__file__), "airfoil_fixes")
 
 
-def _load_airfoil(desig: str):
+def _load_airfoil(desig: str) -> "asb.Airfoil":
     """Build an aerosandbox Airfoil, preferring a local coordinate fix."""
     import aerosandbox as asb
 
@@ -71,11 +75,7 @@ def save_raw_shapes(
 def save_shapes(
     shapes: dict[str, np.ndarray], out_path: str = "output/data/hydrofoil_hkt5"
 ) -> None:
-    """Write all foils' coordinates to one txt and one nc file.
-
-    Foils with fewer points than the longest one are padded with NaN,
-    since raw (unrepanelled) coordinates can differ in point count.
-    """
+    """Write all foils' coordinates to one txt and one nc file, NaN-padded."""
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     foil_ids = list(shapes.keys())
     n_points = max(shapes[foil_id].shape[0] for foil_id in foil_ids)

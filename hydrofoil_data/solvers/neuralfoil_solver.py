@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import warnings
+
 import numpy as np
 import pandas as pd
 
@@ -14,19 +15,7 @@ def run_neuralfoil(
     model_size: str = "large",
     n_crit: float = 9.0,
 ) -> pd.DataFrame:
-    """Run NeuralFoil for a single airfoil across alphas at one Reynolds number.
-
-    Args:
-        coords: Surface coordinates, shape (n_points, 2), CCW from TE.
-        alphas: List of angles of attack in degrees.
-        re: Reynolds number.
-        model_size: NeuralFoil model size string (e.g. "large").
-        n_crit: Transition criterion (e-to-the-n method).
-
-    Returns:
-        DataFrame with columns:
-        [alpha, Re, Cl, Cd, Cm, Cp_min, analysis_confidence]
-    """
+    """Run NeuralFoil for one airfoil across alphas at one Reynolds number."""
     import neuralfoil as nf
 
     records: list[dict] = []
@@ -88,12 +77,7 @@ def _extract_scalar(result: dict, key: str) -> float:
 
 
 def _extract_cp_min(result: dict, alpha: float, re: float) -> float:
-    """Return min(Cp) over the surface from NeuralFoil boundary-layer output.
-
-    NeuralFoil returns ue/vinf (edge-velocity ratio) at 32 stations on each
-    surface.  Cp follows from the isentropic relation: Cp = 1 - (ue/vinf)^2.
-    We collect all upper and lower stations and return the minimum Cp.
-    """
+    """Return min(Cp) over the surface from NeuralFoil's ue/vinf stations."""
     ue_vals: list[float] = []
 
     for surface in ("upper", "lower"):
@@ -119,6 +103,7 @@ def _extract_cp_min(result: dict, alpha: float, re: float) -> float:
 
 
 def _nan_record(alpha: float, re: float) -> dict:
+    """Build an all-NaN result record for a failed NeuralFoil call."""
     return {
         "alpha": float(alpha),
         "Re": float(re),

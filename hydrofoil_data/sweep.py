@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -15,15 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_full_sweep(config: dict) -> xr.Dataset:
-    """Orchestrate the full multi-fidelity sweep over all shapes and conditions.
-
-    Args:
-        config: Parsed sweep_config dict (top-level from YAML).
-
-    Returns:
-        xarray.Dataset with dimensions (foil_id, alpha, Re, fidelity) and
-        data variables Cl, Cd, Cm, Cp_min, converged, analysis_confidence.
-    """
+    """Run the full multi-fidelity sweep over all shapes and conditions."""
     shapes = load_all_shapes(config)
     foil_ids = list(shapes.keys())
 

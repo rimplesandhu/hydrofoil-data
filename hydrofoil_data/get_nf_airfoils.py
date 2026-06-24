@@ -1,15 +1,11 @@
-"""List all airfoils in the NeuralFoil training database (via AeroSandbox).
-
-The database contains 2,174 airfoils drawn from the UIUC and TraCFoil
-sources, as cited in the NeuralFoil whitepaper (Sharpe & Hansman, 2025).
-"""
+"""List all airfoils in the NeuralFoil training database (via AeroSandbox)."""
 
 from pathlib import Path
 
 from aerosandbox import _asb_root
 
 
-def get_airfoil_database_path():
+def get_airfoil_database_path() -> Path:
     """Return path to the AeroSandbox airfoil database directory."""
     return _asb_root / "geometry" / "airfoil" / "airfoil_database"
 
